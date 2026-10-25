@@ -45,8 +45,10 @@ async def main_async(mux=default_mux):
         return 1
 
     try:
-        await qrexec_register_argument(
-            'u2f.Authenticate', response.qrexec_arg)
+        qrexec_arg = response.qrexec_arg
+        if request.app_id:
+            qrexec_arg += "+" + request.app_id
+        await qrexec_register_argument('u2f.Authenticate', qrexec_arg)
     except InvalidCommandError:
         pass
 

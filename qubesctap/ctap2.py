@@ -402,6 +402,7 @@ class GetAssertion(Ctap2Request):
         if self.allow_list is None:
             return
         for cred in self.allow_list:
+            yield qrexec_arg(cred['id']) + "+" + encode_rp_id(self.rp_id)
             yield qrexec_arg(cred['id'])
 
 

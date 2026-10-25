@@ -45,7 +45,10 @@ def test_key_handle_match(action):
         assert not sys.stdout.buffer.getvalue()
 
     assert not isinstance(muxed.data, InvalidRequest)
-    assert list(muxed.qrexec_args) == [argument]
+    expected  = [argument]
+    if "+" in argument:
+        expected.append(argument.split("+")[0])
+    assert list(muxed.qrexec_args) == expected
 
 
 @pytest.mark.parametrize("action", ("GetAssertion", "Authenticate"))
@@ -90,7 +93,7 @@ def test_restricted_to_authorised_credential():
     trimmed_data_dict["allow_list"] = list(data.allow_list) + [other_cred]
     extended = CborRequestWrapper(GetAssertion(**trimmed_data_dict))
 
-    assert len(list(extended.qrexec_args)) == 2
+    assert len(list(extended.qrexec_args)) == 4
 
     muxed = None
 
@@ -102,7 +105,10 @@ def test_restricted_to_authorised_credential():
         retcode = qctap_get_assertion.main([argument], mux=mux)
         assert retcode in (None, 0)
 
-    assert list(muxed.qrexec_args) == [argument]
+    expected = [argument]
+    if "+" in argument:
+        expected.append(argument.split("+")[0])
+    assert list(muxed.qrexec_args) == expected
 
 
 def test_rejects_non_assertion():

@@ -242,6 +242,13 @@ class RequestWrapper(CommunicatWrapper, ABC):
         """
         raise NotImplementedError()
 
+    @property
+    def app_id(self) -> str:
+        """
+        Returns application ("relying party") identifier
+        """
+        return ""
+
     def restrict_to_credential(self, credential_id_hash):
         """
         Remove credentials with different hash than the `credential_id_hash`.
@@ -436,7 +443,19 @@ class CborRequestWrapper(RequestWrapper):
         if self.data.allow_list is None:
             return
         for cred in self.data.allow_list:
+            yield qrexec_arg(cred['id']) + "+" + encode_rp_id(self.data.rp_id)
             yield qrexec_arg(cred['id'])
+
+    @property
+    def app_id(self) -> str:
+        """
+        Returns application ("relaying party") identifier
+        """
+        if isinstance(self.data, ctap2.GetAssertion):
+            return encode_rp_id(self.data.rp_id)
+        if isinstance(self.data, ctap2.MakeCredential):
+            return encode_rp_id(self.data.rp.id)
+        raise InvalidCommandError()
 
     def restrict_to_credential(self, credential_id_hash):
         """
@@ -446,6 +465,8 @@ class CborRequestWrapper(RequestWrapper):
             raise InvalidCommandError()
         if self.data.allow_list is None:
             return
+        # discard rp_id suffix
+        credential_id_hash = credential_id_hash.split("+")[0]
         allow_list = [cred for cred in self.data.allow_list
                       if qrexec_arg(cred['id']) == credential_id_hash]
         trimmed_data_dict = {k: v for k, v in self.data.__dict__.items()

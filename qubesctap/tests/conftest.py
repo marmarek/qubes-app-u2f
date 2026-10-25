@@ -91,11 +91,17 @@ def get_request_class(action: str):
 def get_qrexec_arg(action: str):
     args = {
         "Register": "0be41a3e5c92fc823198ea279122a26a",
-        "GetAssertion": "c9310b6c3d33b1e86c070ed9c487632a",
+        "GetAssertion": "c9310b6c3d33b1e86c070ed9c487632a+webauthn.io",
         "Authenticate": "92b0828988bf2679992cc5fe5b03d23f",
         "MakeCredential": "682cb256ec6e41a548eb4bf2d822869a"}
     return args[action]
 
+def get_app_id(action: str):
+    app_ids = {
+        "Register": "c46cef82ad1b546477591d008b08759ec3e6d2ecb4f39474bfea6969925d03b7",
+        "MakeCredential": "webauthn.io",
+    }
+    return app_ids[action]
 
 def get_response(action: str):
     if action in ("Register", "Authenticate"):
